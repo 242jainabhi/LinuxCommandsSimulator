@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 from entities.directory import Directory
-from entities.metadata import Metadata
+from metadata.metadata import Metadata
 
 
 class BaseHierarchyManager(metaclass=ABCMeta):

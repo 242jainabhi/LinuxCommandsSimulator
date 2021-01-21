@@ -15,7 +15,8 @@ class Executor(BaseExecutor):
                          }
         self.hierarchy_manager = hierarchy_manager
 
-    def parser(self, command_sentence):
+    @staticmethod
+    def parser(command_sentence):
         command_words = command_sentence.split()
         command, flags, arguments = command_words[0], None, command_words[1:]
         return {
@@ -31,5 +32,5 @@ class Executor(BaseExecutor):
             command = self.commands[command_name]
             command.execute(parsed_command['arguments'], self.hierarchy_manager)
         else:
-            raise Exception
+            raise Exception("Invalid Command. Allowed commands are ['pwd', 'mkdir', 'ls', 'rm', 'cd']")
 

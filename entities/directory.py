@@ -6,11 +6,11 @@ from entities.file import File
 
 class BaseDirectory(metaclass=ABCMeta):
     @abstractmethod
-    def getName(self):
+    def get_name(self):
         raise NotImplementedError
 
     @abstractmethod
-    def getSize(self):
+    def get_size(self):
         raise NotImplementedError
 
 
@@ -21,27 +21,27 @@ class Directory(BaseDirectory):
         self.directories = {}
         self.files = {}
 
-    def getName(self):
+    def get_name(self):
         return self.metaData.name
 
-    def getSize(self):
+    def get_size(self):
         return self.metaData.size
 
-    def getParent(self):
+    def get_parent(self):
         return self.parent
 
-    def getPath(self) -> str:
+    def get_path(self) -> str:
         """
         recursively compute the current dir path, starting from current dir till the root dir
         :return: path to current dir from root
         """
-        dirStack = []
+        dir_stack = []
         current_dir = self
         while current_dir is not None:
-            dirStack.append(current_dir.metaData.getName())
+            dir_stack.append(current_dir.metaData.getName())
             current_dir = current_dir.getParent()
 
-        return self.__generatePathFromDirStack(dirStack)
+        return self.__generatePathFromDirStack(dir_stack)
 
     def getDirectories(self):
         return self.directories
@@ -56,14 +56,14 @@ class Directory(BaseDirectory):
         self.files[file.getName()] = file
 
     @staticmethod
-    def __generatePathFromDirStack(dirStack):
+    def __generatePathFromDirStack(dir_stack):
         path = ''
-        pathSep = '/'
+        path_sep = '/'
         root_dir = '/'
-        dirStack.pop()  # removing root dir name
-        if len(dirStack) > 0:
-            while dirStack:
-                path += pathSep + dirStack.pop()
+        dir_stack.pop()  # removing root dir name
+        if len(dir_stack) > 0:
+            while dir_stack:
+                path += path_sep + dir_stack.pop()
         else:
             return root_dir
         return path

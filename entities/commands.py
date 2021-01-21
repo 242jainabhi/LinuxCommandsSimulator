@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 
 from entities.directory import Directory
 from entities.hierarchy_manager import HierarchyManager
-from entities.metadata import Metadata
+from metadata.metadata import Metadata
 
 
 class BaseCommand(metaclass=ABCMeta):
@@ -17,7 +17,7 @@ class PrintWorkingDir(BaseCommand):
 
     def execute(self, arguments:  list, hierarchy_manager: HierarchyManager):
         current_dir = hierarchy_manager.getCurrentDir()
-        print(current_dir.getPath())
+        print(current_dir.get_path())
 
 
 class ListDir(BaseCommand):
@@ -37,16 +37,16 @@ class ChangeDir(BaseCommand):
         pass
 
     def execute(self, arguments:  list, hierarchy_manager: HierarchyManager):
-        Helper().validateArguments(arguments)
-        dirName = arguments[0]
-        if dirName == '..':
+        Helper().validate_arguments(arguments)
+        dir_name = arguments[0]
+        if dir_name == '..':
             hierarchy_manager.current_dir = hierarchy_manager.current_dir.parent
         else:
-            childDirs = hierarchy_manager.current_dir.getDirectories().keys()
-            if dirName in childDirs:
-                hierarchy_manager.current_dir = hierarchy_manager.current_dir.getDirectories()[dirName]
+            child_dirs = hierarchy_manager.current_dir.getDirectories().keys()
+            if dir_name in child_dirs:
+                hierarchy_manager.current_dir = hierarchy_manager.current_dir.getDirectories()[dir_name]
             else:
-                raise Exception
+                raise Exception("Invalid directory")
 
 
 class MakeDir(BaseCommand):
@@ -54,39 +54,46 @@ class MakeDir(BaseCommand):
         pass
 
     def execute(self, arguments:  list, hierarchy_manager: HierarchyManager):
-        Helper().validateArguments(arguments)
+        Helper().validate_arguments(arguments)
 
-        dirName = arguments[0]
+        dir_name = arguments[0]
         current_dir = hierarchy_manager.getCurrentDir()
 
-        Helper().validate_duplication(dirName, current_dir)
+        Helper().validate_duplication(dir_name, current_dir)
 
-        metadata = Metadata(dirName)
+        metadata = Metadata(dir_name)
         directory = Directory(metadata, current_dir)
         current_dir.addDirectory(directory)
+
 
 class RemoveDir(BaseCommand):
     def __init__(self):
         pass
 
     def execute(self, arguments:  list, hierarchy_manager: HierarchyManager):
-        dirName = arguments[0]
-        current_dir = hierarchy_manager.getCurrentDir()
-        if dirName in current_dir.getDirectories():
-            del current_dir.getDirectories()[dirName]
+        try:
+            dir_name = arguments[0]
+        except IndexError as e:
+            raise e
         else:
-            raise Exception
+            current_dir = hierarchy_manager.getCurrentDir()
+            if dir_name in current_dir.getDirectories():
+                del current_dir.getDirectories()[dir_name]
+            else:
+                raise Exception('Directory not found')
 
 
 class Helper:
-    def validateArguments(self, arguments):
+    @staticmethod
+    def validate_arguments(arguments):
         if len(arguments) != 1:
-            raise Exception
+            raise Exception("Not enough arguments")
 
-    def validate_duplication(self, item, current_dir):
+    @staticmethod
+    def validate_duplication(item, current_dir):
         files = current_dir.getFiles()
         if item in files:
-            raise Exception
+            raise Exception('File already exists!')
         directories = current_dir.getDirectories()
         if item in directories:
-            raise Exception
+            raise Exception('Directory already exists!')
